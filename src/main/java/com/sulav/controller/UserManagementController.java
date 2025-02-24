@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sulav.dto.UserDTO;
 import com.sulav.entity.User;
 import com.sulav.service.UserManagementService;
 
@@ -24,18 +25,18 @@ public class UserManagementController {
 	private UserManagementService userService;
 	
 	@GetMapping("/view")
-	public ResponseEntity<List<User>> viewAllUsers(){
+	public ResponseEntity<List<UserDTO>> viewAllUsers(){
 		return ResponseEntity.ok(userService.viewAllUsers());
 	}
 	// registration for new user
 	@PostMapping("/register")
-	public ResponseEntity<User> registerUser(@RequestBody User user){
+	public ResponseEntity<UserDTO> registerUser(@RequestBody User user){
 		return ResponseEntity.ok(userService.createUser(user));
 	}
 	
 	// login existing user
 	@GetMapping("/login")
-	public ResponseEntity<User> loginUser(@RequestParam String username, @RequestParam String password){
+	public ResponseEntity<UserDTO> loginUser(@RequestParam String username, @RequestParam String password){
 		return ResponseEntity.ok(userService.findUser(username, password));
 	}
 	
@@ -48,5 +49,10 @@ public class UserManagementController {
 	@PutMapping("/reset-pass/{email}")
 	public ResponseEntity<String> resetPassword(@PathVariable String email, @RequestParam String newpass){
 		return ResponseEntity.ok(userService.resetPassword(email, newpass));
+	}
+	
+	@PutMapping("/update/{userId}")
+	public ResponseEntity<UserDTO> updateProfile(@PathVariable Long userId, @RequestBody User user){
+		return ResponseEntity.ok(userService.updateProfile(userId, user));
 	}
 }

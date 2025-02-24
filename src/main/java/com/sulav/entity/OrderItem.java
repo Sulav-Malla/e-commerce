@@ -1,5 +1,7 @@
 package com.sulav.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +21,8 @@ public class OrderItem {
 	private Long orderItemId;
 	
 	@ManyToOne
-	@JoinColumn(name = "cart_id", nullable = false)
+	@JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference
 	private Order order;
 	
 	@ManyToOne

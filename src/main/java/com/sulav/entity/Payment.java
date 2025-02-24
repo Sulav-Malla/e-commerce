@@ -1,5 +1,7 @@
 package com.sulav.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +22,7 @@ public class Payment {
 	
 	@OneToOne
 	@JoinColumn(name = "order_id")
+	@JsonManagedReference
 	private Order order;
 	
 	private Double amount;
