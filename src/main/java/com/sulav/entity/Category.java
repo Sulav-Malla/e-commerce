@@ -1,6 +1,9 @@
 package com.sulav.entity;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,5 +26,6 @@ public class Category {
 	private String categoryName;
 	
 	@OneToMany(mappedBy = "category")
-	private List<Product> products;
+	@JsonIgnore 
+	private List<Product> products = new ArrayList<>();
 }

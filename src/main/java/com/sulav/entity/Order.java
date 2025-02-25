@@ -40,4 +40,6 @@ public class Order {
 	List<OrderItem> orderItems;
 	
 	private Double totalAmount;
+	
+	private String status;
 }

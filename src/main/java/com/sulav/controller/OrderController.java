@@ -25,6 +25,11 @@ public class OrderController {
 		return ResponseEntity.ok(orderService.getOrderHistory(userId));
 	}
 	
+	@GetMapping("/{userId}/track")
+	public ResponseEntity<List<OrderDTO>> viewOpenOrdersForUser(@PathVariable Long userId){
+		return ResponseEntity.ok(orderService.getOpenOrders(userId));
+	}
+	
 	@GetMapping("/confirmation/{orderId}")
 	public ResponseEntity<?> getOrderConfirmation(@PathVariable Long orderId){
 		OrderDTO orderDTO = orderService.getConfirmation(orderId);

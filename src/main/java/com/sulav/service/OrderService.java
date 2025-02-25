@@ -25,7 +25,8 @@ public class OrderService {
 				order.getOrderId(),
 				order.getTotalAmount(),
 				order.getPayment().getPaymentMethod(),
-				orderItems
+				orderItems,
+				order.getStatus()
 				);
 		
 	}
@@ -45,16 +46,24 @@ public class OrderService {
 	// get all orders for a user
 	public List<OrderDTO> getOrderHistory(Long userId) {
 		List<Order> orders = orderRepository.findByUser_uID(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-		List<OrderDTO> orderHistory = orders.stream().map(this::convertToOrderDTO).collect(Collectors.toList());
+		List<OrderDTO> orderHistory = orders.stream().filter(order -> order.getStatus().equals("Finished")).map(this::convertToOrderDTO).collect(Collectors.toList());
 		return orderHistory;
 	}
 
+	// track open orders
+	public List<OrderDTO> getOpenOrders(Long userId){
+		List<Order> orders = orderRepository.findByUser_uID(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		List<OrderDTO> orderHistory = orders.stream().filter(order -> order.getStatus().equals("Open")).map(this::convertToOrderDTO).collect(Collectors.toList());
+		return orderHistory;
+	}
+	
 	// order confirmation
 	public OrderDTO getConfirmation(Long orderId) {
 		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found!"));
 		Payment payment = order.getPayment();
 		if (payment != null) {
 			if (payment.getPaymentStatus().equals("Completed")) {
+				order.setStatus("Finished");
 				return convertToOrderDTO(order);
 			}
 		}

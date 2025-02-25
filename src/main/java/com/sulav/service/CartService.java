@@ -57,7 +57,7 @@ public class CartService {
 		);
 
 	}
-	
+
 	private ReviewDTO convertToReviewDTO(Review review) {
 		return new ReviewDTO(review.getReviewId(), review.getComment(), review.getRating(),
 				review.getUser().getUsername(), review.getProduct().getProductName());
@@ -85,6 +85,7 @@ public class CartService {
 			Cart newCart = new Cart();
 			newCart.setUser(user);
 			newCart.setCartItems(new ArrayList<>());
+			newCart.setTotalPrice(0.0);
 			return cartRepository.save(newCart);
 
 		});
@@ -100,14 +101,21 @@ public class CartService {
 		if (product.getQuantity() < quantity) {
 			throw new RuntimeException("Quantity more than what's available!");
 		}
-		CartItem item = new CartItem();
-		item.setCart(cart);
-		item.setProduct(product);
-		item.setQuantity(quantity);
-		item.setPrice(product.getPrice());
-		cartItemRepository.save(item);
-		cart.getCartItems().add(item);
-		cart.setTotalPrice(cart.getTotalPrice() + (item.getPrice() * item.getQuantity()));
+		CartItem existingItem = cart.getCartItems().stream()
+				.filter(item -> item.getProduct().getProductId().equals(productId)).findFirst().orElse(null);
+		if (existingItem != null) {
+			existingItem.setQuantity(existingItem.getQuantity() + quantity);
+		} else {
+			existingItem = new CartItem();
+			existingItem.setCart(cart);
+			existingItem.setProduct(product);
+			existingItem.setQuantity(quantity);
+			existingItem.setPrice(product.getPrice());
+		}
+		cart.getCartItems().add(existingItem);
+
+		Double currentPrice = cart.getTotalPrice();
+		cart.setTotalPrice(currentPrice + (existingItem.getPrice() * existingItem.getQuantity()));
 
 		return convertToCartDTO(cartRepository.save(cart));
 
@@ -156,8 +164,8 @@ public class CartService {
 		product.getReviews().add(review);
 
 		userRepository.save(user);
-		
-		return convertToReviewDTO(reviewRepository.save(review));
+
+		return convertToReviewDTO(review);
 	}
 
 	public String checkoutProcess(Long userId, Long cartId) {
@@ -167,6 +175,7 @@ public class CartService {
 		Order order = new Order();
 		order.setUser(user);
 		order.setTotalAmount(cart.getTotalPrice());
+		order.setStatus("Open");
 
 		List<OrderItem> orderItems = cart.getCartItems().stream().map(cartItem -> mapCartToOrder(cartItem, order))
 				.collect(Collectors.toList());
@@ -182,7 +191,7 @@ public class CartService {
 		orderItem.setPrice(cartItem.getPrice());
 		orderItem.setQuantity(cartItem.getQuantity());
 		orderItem.setOrder(order);
-
+		
 		return orderItem;
 	}
 

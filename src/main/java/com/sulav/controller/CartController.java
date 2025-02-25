@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulav.dto.CartDTO;
 import com.sulav.dto.ReviewDTO;
-import com.sulav.entity.Cart;
 import com.sulav.entity.Review;
 import com.sulav.service.CartService;
 
@@ -37,10 +36,6 @@ public class CartController {
 		return ResponseEntity.ok(cartService.getCartByUserId(id));
 	}
 	
-	@PostMapping("/create/{id}")
-	public ResponseEntity<Cart> openNewUserCart(@PathVariable Long id){
-		return ResponseEntity.ok(cartService.createCartForUser(id));
-	}
 	
 	@PutMapping("/add/{userId}/{productId}")
 	public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long userId, @PathVariable Long productId, @RequestParam int quantity){

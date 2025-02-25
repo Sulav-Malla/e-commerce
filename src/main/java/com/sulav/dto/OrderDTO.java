@@ -8,6 +8,7 @@ public class OrderDTO {
 	private Double totalPrice;
 	private String paymentMethod;
 	private List<OrderItemDTO> orderItems;
+	private String status;
 	public Long getOrderId() {
 		return orderId;
 	}
@@ -32,14 +33,20 @@ public class OrderDTO {
 	public void setOrderItems(List<OrderItemDTO> orderItems) {
 		this.orderItems = orderItems;
 	}
-	public OrderDTO(Long orderId, Double totalPrice, String paymentMethod, List<OrderItemDTO> orderItems) {
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public OrderDTO(Long orderId, Double totalPrice, String paymentMethod, List<OrderItemDTO> orderItems,
+			String status) {
 		this.orderId = orderId;
 		this.totalPrice = totalPrice;
 		this.paymentMethod = paymentMethod;
 		this.orderItems = orderItems;
+		this.status = status;
 	}
-	
-	
 	
 	
 	

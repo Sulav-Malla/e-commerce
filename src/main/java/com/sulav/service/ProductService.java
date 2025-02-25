@@ -16,8 +16,10 @@ import com.sulav.dto.ReviewDTO;
 import com.sulav.entity.Category;
 import com.sulav.entity.Product;
 import com.sulav.entity.Review;
+import com.sulav.entity.User;
 import com.sulav.repository.CategoryRepo;
 import com.sulav.repository.ProductRepo;
+import com.sulav.repository.UserRepo;
 
 @Service
 public class ProductService {
@@ -27,13 +29,14 @@ public class ProductService {
 
 	private final ProductRepo productRepository;
 	private final CategoryRepo categoryRepository;
+	private final UserRepo userRepository;
 
-	public ProductService(ProductRepo productRepository, CategoryRepo categoryRepository) {
+	public ProductService(ProductRepo productRepository, CategoryRepo categoryRepository, UserRepo userRepository) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
+		this.userRepository = userRepository;
 	}
 
-	
 	// converts product to dto
 	private ProductDTO convertToDTO(Product product) {
 		return new ProductDTO(product.getProductId(), product.getProductName(), product.getPDescription(),
@@ -43,7 +46,6 @@ public class ProductService {
 				product.getCategory().getCategoryName());
 	}
 
-	
 	// convert review to dto
 	private ReviewDTO convertToReviewDTO(Review review) {
 		return new ReviewDTO(review.getReviewId(), review.getComment(), review.getRating(),
@@ -52,8 +54,10 @@ public class ProductService {
 
 	// convert category to dto
 	private CategoryDTO convertToCategoryDTO(Category category) {
-		return new CategoryDTO(category.getCategoryId(), category.getCategoryName(),
-				category.getProducts().stream().map(this::convertToDTO).collect(Collectors.toList()));
+		List<ProductDTO> products = category.getProducts().stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
+
+		return new CategoryDTO(category.getCategoryId(), category.getCategoryName(), products);
 	}
 
 	// view all products
@@ -86,11 +90,18 @@ public class ProductService {
 	}
 
 	// create new product
-	public ProductDTO createProduct(Product product) {
-		return convertToDTO(productRepository.save(product));
+	public ProductDTO createProduct(Long sellerId, Long categoryId, Product product) {
+		User usr = userRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
+		Category category = categoryRepository.findById(categoryId)
+				.orElseThrow(() -> new RuntimeException("Category not found"));
+		product.setCategory(category);
+		product.setSeller(usr);
+		Product savedProduct = productRepository.save(product);
+
+		// Convert the saved product to DTO and return it
+		return convertToDTO(savedProduct);
 	}
-	
-	
+
 	// create new category
 	public CategoryDTO createCategory(Category category) {
 		return convertToCategoryDTO(categoryRepository.save(category));

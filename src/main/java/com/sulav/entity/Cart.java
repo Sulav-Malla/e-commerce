@@ -34,7 +34,10 @@ public class Cart {
 	@JsonManagedReference
 	List<CartItem> cartItems;
 	
-	private Double totalPrice;
+	private Double totalPrice = 0.0;
 	
+	public Double getTotalPrice() {
+	    return totalPrice != null ? totalPrice : 0.0;
+	}
 }
 

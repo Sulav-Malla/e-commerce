@@ -18,7 +18,7 @@ public class UserManagementService {
 
 	// change user to userDTO
 	private UserDTO convertToDTO(User user) {
-		return new UserDTO(user.getUID(), user.getUsername(), user.getEmail(), user.getRole().getName().name());
+		return new UserDTO(user.getUID(), user.getUsername(), user.getEmail(), user.getRole().name());
 
 	}
 

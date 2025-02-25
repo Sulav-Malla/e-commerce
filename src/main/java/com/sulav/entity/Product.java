@@ -1,9 +1,10 @@
 package com.sulav.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -39,20 +40,20 @@ public class Product {
 	
 	@ManyToOne
     @JoinColumn(name = "seller_id")
-	@JsonBackReference
+	@JsonIgnore
     private User seller;  
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-	@JsonManagedReference
-    private List<Review> reviews;
+    @JsonIgnore
+    private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-	@JsonBackReference
-    private List<OrderItem> orders;
+	@JsonIgnore
+    private List<OrderItem> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-    @JsonBackReference
-    private List<CartItem> carts;
+    @JsonIgnore
+    private List<CartItem> carts = new ArrayList<>();
     
     private String productImgPath;
 }

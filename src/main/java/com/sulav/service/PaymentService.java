@@ -25,11 +25,11 @@ public class PaymentService {
 	}
 
 	// pay for the order using card
-	public PaymentDTO payByCard(Long orderId, Double amount) {
+	public PaymentDTO payByCard(Long orderId) {
 		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
 		Payment payment = new Payment();
 		payment.setOrder(order);
-		payment.setAmount(amount);
+		payment.setAmount(order.getTotalAmount());
 		payment.setPaymentMethod("Credit/Debit");
 		payment.setPaymentStatus("Completed");
 		return convertToPaymentDTO(paymentRepository.save(payment));

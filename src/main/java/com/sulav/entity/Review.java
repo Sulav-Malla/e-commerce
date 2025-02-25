@@ -1,6 +1,6 @@
 package com.sulav.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,11 +26,11 @@ public class Review {
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = true)
-    @JsonBackReference
+    @JsonIgnore
 	private User user;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id", nullable = true)
-    @JsonBackReference
+	@JsonIgnore
 	private Product product;
 }
