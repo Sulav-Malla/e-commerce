@@ -19,8 +19,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class AppSecurityConfig {
-//	@Autowired
-//    private PasswordEncoder pwdEncoder; 
 	
 	@Bean
 	public PasswordEncoder pwdEncoder() {
@@ -32,10 +30,10 @@ public class AppSecurityConfig {
 	public SecurityFilterChain securityConfig(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests((req) -> {req
-			.requestMatchers("/user/login", "/user/register", "/user/profile/**", "/product/view/**").permitAll()
+			.requestMatchers("/user/login", "/user/register", "/product/view/**").permitAll()
 			.requestMatchers("/user/admin/**", "/product/admin/**", "/cart/admin/**").hasRole("ADMIN")
 			.requestMatchers("/product/seller/**").hasAnyRole("ADMIN", "SELLER")
-			.requestMatchers("/cart/user/**", "/order/**", "/payment/**").hasAnyRole("ADMIN", "SELLER", "CUSTOMER") // letting users check cart info if they know the user id
+			.requestMatchers("/cart/user/**", "/order/**", "/payment/**", "/user/profile/**").hasAnyRole("ADMIN", "SELLER", "CUSTOMER") // letting users check cart info if they know the user id
 			.anyRequest().authenticated();
 		}).httpBasic(Customizer.withDefaults()).formLogin(Customizer.withDefaults());
 		
@@ -44,16 +42,6 @@ public class AppSecurityConfig {
 		return http.build();
 	}
 	
-//	@Bean
-//	public InMemoryUserDetailsManager inMemoryUsers() {
-//		UserDetails admin = User.withDefaultPasswordEncoder().username("admin").password("admin@123").roles("ADMIN").build();
-//		UserDetails seller = User.withDefaultPasswordEncoder().username("seller").password("seller@123").roles("SELLER").build();
-//		UserDetails customer = User.withDefaultPasswordEncoder().username("customer").password("customer@123").roles("CUSTOMER").build();
-////
-//		
-//
-//		return new InMemoryUserDetailsManager(admin, seller, customer);
-//	}
 
 	@Bean
 	public InMemoryUserDetailsManager inMemoryUsers(PasswordEncoder pwdEncoder) {

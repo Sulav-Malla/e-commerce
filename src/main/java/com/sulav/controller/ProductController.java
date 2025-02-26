@@ -47,11 +47,6 @@ public class ProductController {
 		return ResponseEntity.ok(productService.getProductInCategory(id));
 	}
 
-//	@PostMapping("/seller/add/{sellerId}/{categoryId}")
-//	public ResponseEntity<ProductDTO> addNewProduct(@PathVariable Long sellerId, @PathVariable Long categoryId,
-//			@RequestBody Product product) {
-//		return ResponseEntity.ok(productService.createProduct(sellerId, categoryId, product));
-//	}
 	@PostMapping("/seller/add")
 	public ResponseEntity<ProductDTO> addNewProduct(@RequestBody ProductRequest product) {
 		return ResponseEntity.ok(productService.createProduct(product));
