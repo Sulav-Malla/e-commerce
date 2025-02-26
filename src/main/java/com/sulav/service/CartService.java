@@ -183,6 +183,7 @@ public class CartService {
 	}
 
 
+	// allows user to checkout cart (makes new open order)
 	public String checkoutProcess(Long userId, Long cartId) {
 		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found!"));
 		UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));

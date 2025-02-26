@@ -21,9 +21,6 @@ public class UserManagementService {
 
 	@Autowired
 	private PasswordEncoder pwdEncoder;
-
-
-	// authentication
 	
 
 	// change user to userDTO
@@ -72,7 +69,7 @@ public class UserManagementService {
 	}
 	
 	
-
+	// checks if user exists (login)
 	public UserDTO findUser(String email, String password) {
 		return userRepository.findByEmail(email)
 		        .filter(user -> pwdEncoder.matches(password, user.getPassword())) 
