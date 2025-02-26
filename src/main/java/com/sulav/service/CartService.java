@@ -16,10 +16,12 @@ import com.sulav.entity.OrderItem;
 import com.sulav.entity.Product;
 import com.sulav.entity.Review;
 import com.sulav.entity.UserProfile;
+import com.sulav.model.ReviewRequest;
 import com.sulav.repository.CartItemRepo;
 import com.sulav.repository.CartRepo;
 import com.sulav.repository.OrderRepo;
 import com.sulav.repository.ProductRepo;
+import com.sulav.repository.ReviewRepo;
 import com.sulav.repository.UserRepo;
 
 @Service
@@ -30,14 +32,16 @@ public class CartService {
 	private final UserRepo userRepository;
 	private final ProductRepo productRepository;
 	private final OrderRepo orderRepository;
+	private final ReviewRepo reviewRepository;
 
 	public CartService(CartRepo cartRepository, CartItemRepo cartItemRepository, UserRepo userRepository,
-			ProductRepo productRepository, OrderRepo orderRepository) {
+			ProductRepo productRepository, OrderRepo orderRepository, ReviewRepo reviewRepository) {
 		this.cartRepository = cartRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.userRepository = userRepository;
 		this.productRepository = productRepository;
 		this.orderRepository = orderRepository;
+		this.reviewRepository = reviewRepository;
 	}
 
 	private CartDTO convertToCartDTO(Cart cart) {
@@ -154,25 +158,39 @@ public class CartService {
 	}
 
 	// lets user write review for a product
-	public ReviewDTO writeReviewForProduct(Long userId, Long productId, Review review) {
-		UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new RuntimeException("Product not found!"));
-		review.setUser(user);
-		review.setProduct(product);
-		// update review list
-		user.getReviews().add(review);
-		product.getReviews().add(review);
+	public ReviewDTO writeReviewForProduct(Long userId, Long productId, ReviewRequest reviewRequestDTO) {
+	    UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+	    Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found!"));
 
-		userRepository.save(user);
+	    
+	    
+	    Review review = new Review();
+	    review.setComment(reviewRequestDTO.getComment());
+	    review.setRating(reviewRequestDTO.getRating());
+	    review.setUser(user);
+	    review.setProduct(product);
 
-		return convertToReviewDTO(review);
+	   
+	    // update review list
+	    user.getReviews().add(review);
+	    product.getReviews().add(review);
+	    
+	    reviewRepository.save(review);
+
+	   
+
+	    return convertToReviewDTO(review);
 	}
+
 
 	public String checkoutProcess(Long userId, Long cartId) {
 		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found!"));
 		UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 
+		if (cart.getCartItems().isEmpty()) {
+	        throw new RuntimeException("Cart is empty! Cannot proceed with checkout.");
+	    }
+		
 		Order order = new Order();
 		order.setUser(user);
 		order.setTotalAmount(cart.getTotalPrice());
@@ -182,12 +200,9 @@ public class CartService {
 				.collect(Collectors.toList());
 		order.setOrderItems(orderItems);
 		orderRepository.save(order);
-
-	
-	    user.getOrders().add(order);
-
 	    
-	    userRepository.save(user);
+	    cart.getCartItems().clear();  
+	    cartRepository.save(cart);
 	    
 		return "Order created with id: " + order.getOrderId();
 	}

@@ -3,7 +3,6 @@ package com.sulav.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import jakarta.persistence.CascadeType;
@@ -40,19 +39,15 @@ public class Product {
 	
 	@ManyToOne
     @JoinColumn(name = "seller_id")
-	@JsonIgnore
     private UserProfile seller;  
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-	@JsonIgnore
     private List<OrderItem> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-    @JsonIgnore
     private List<CartItem> carts = new ArrayList<>();
     
     private String productImgPath;

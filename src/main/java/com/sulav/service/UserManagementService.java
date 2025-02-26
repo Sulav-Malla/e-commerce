@@ -5,14 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sulav.dto.UserDTO;
 import com.sulav.entity.UserProfile;
+import com.sulav.model.RegisterRequest;
 import com.sulav.repository.UserRepo;
 
 @Service
@@ -41,15 +39,39 @@ public class UserManagementService {
 	}
 
 	// registers user
-	public UserDTO createUser(UserProfile user) {
-		if (userRepository.existsByEmail(user.getEmail())) {
-			throw new IllegalArgumentException("Email is already in use");
-		}
-		String encodedPwd = pwdEncoder.encode(user.getPassword());
-		user.setPassword(encodedPwd);
-		UserProfile newUser = userRepository.save(user);
-		return convertToDTO(newUser);
+	public UserDTO createUser(RegisterRequest registerDto) {
+
+		if (userRepository.existsByEmail(registerDto.getEmail())) {
+	        throw new IllegalArgumentException("Email is already in use");
+	    }
+
+	   
+	    UserProfile user = new UserProfile();
+	    user.setFirstName(registerDto.getFirstName());
+	    user.setLastName(registerDto.getLastName());
+	    user.setUsername(registerDto.getUsername());
+	    user.setEmail(registerDto.getEmail());
+
+	    // Encode password
+	    user.setPassword(pwdEncoder.encode(registerDto.getPassword()));
+
+	    
+	    if ("admin@123".equals(registerDto.getRoleCode())) {
+	        user.setRole(UserProfile.RoleName.ADMIN);
+	    } else if ("seller@123".equals(registerDto.getRoleCode())) {
+	        user.setRole(UserProfile.RoleName.SELLER);
+	    } else {
+	        user.setRole(UserProfile.RoleName.CUSTOMER); 
+	    }
+
+	   
+	    UserProfile newUser = userRepository.save(user);
+
+	    
+	    return convertToDTO(newUser);
 	}
+	
+	
 
 	public UserDTO findUser(String email, String password) {
 		return userRepository.findByEmail(email)
@@ -74,28 +96,29 @@ public class UserManagementService {
 	}
 
 	// update user profile
-	public UserDTO updateProfile(Long userId, UserProfile user) {
-		UserProfile usr = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Invalid User!"));
-		if (user.getFirstName() != null) {
-			usr.setFirstName(user.getFirstName());
+	public UserDTO updateProfile(Long userId, RegisterRequest registerDto) {
 
-		}
-		if (user.getLastName() != null) {
-			usr.setLastName(user.getLastName());
-		}
+		UserProfile usr = userRepository.findById(userId)
+	            .orElseThrow(() -> new RuntimeException("Invalid User!"));
 
-		if (user.getEmail() != null) {
-			usr.setEmail(user.getEmail());
+	    if (registerDto.getFirstName() != null) {
+	        usr.setFirstName(registerDto.getFirstName());
+	    }
+	    if (registerDto.getLastName() != null) {
+	        usr.setLastName(registerDto.getLastName());
+	    }
+	    if (registerDto.getEmail() != null) {
+	        usr.setEmail(registerDto.getEmail());
+	    }
+	    if (registerDto.getUsername() != null) {
+	        usr.setUsername(registerDto.getUsername());
+	    }
+	    if (registerDto.getPassword() != null && !registerDto.getPassword().isEmpty()) {
+	        usr.setPassword(pwdEncoder.encode(registerDto.getPassword())); // Encrypt password
+	    }
 
-		}
-		if (user.getUsername() != null) {
-			usr.setUsername(user.getUsername());
-		}
-		if (user.getPassword() != null) {
-			usr.setPassword(user.getPassword());
-		}
-
-		return convertToDTO(userRepository.save(usr));
+	    // Save and return updated user
+	    return convertToDTO(userRepository.save(usr));
 
 	}
 

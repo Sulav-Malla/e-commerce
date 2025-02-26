@@ -2,8 +2,7 @@ package com.sulav.entity;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -27,16 +26,13 @@ public class Order {
 	private Long orderId;
 	
 	@OneToOne(mappedBy = "order")
-	@JsonBackReference
     private Payment payment;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")
-    @JsonBackReference
 	private UserProfile user;
 	
 	@OneToMany(mappedBy = "order", cascade= CascadeType.ALL)
-	@JsonManagedReference
 	List<OrderItem> orderItems;
 	
 	private Double totalAmount;

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulav.dto.CartDTO;
 import com.sulav.dto.ReviewDTO;
-import com.sulav.entity.Review;
+import com.sulav.model.ReviewRequest;
 import com.sulav.service.CartService;
 
 @RestController
@@ -48,7 +48,7 @@ public class CartController {
 	}
 	
 	@PostMapping("/user/review/{userId}/{productId}")
-	public ResponseEntity<ReviewDTO> reviewProduct(@PathVariable Long userId, @PathVariable Long productId, @RequestBody Review review){
+	public ResponseEntity<ReviewDTO> reviewProduct(@PathVariable Long userId, @PathVariable Long productId, @RequestBody ReviewRequest review){
 		return ResponseEntity.ok(cartService.writeReviewForProduct(userId, productId, review));
 	}
 	

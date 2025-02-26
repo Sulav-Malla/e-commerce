@@ -17,8 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sulav.dto.CategoryDTO;
 import com.sulav.dto.ProductDTO;
-import com.sulav.entity.Category;
-import com.sulav.entity.Product;
+import com.sulav.model.CategoryRequest;
+import com.sulav.model.ProductRequest;
 import com.sulav.service.ProductService;
 
 @RestController
@@ -47,14 +47,18 @@ public class ProductController {
 		return ResponseEntity.ok(productService.getProductInCategory(id));
 	}
 
-	@PostMapping("/seller/add/{sellerId}/{categoryId}")
-	public ResponseEntity<ProductDTO> addNewProduct(@PathVariable Long sellerId, @PathVariable Long categoryId,
-			@RequestBody Product product) {
-		return ResponseEntity.ok(productService.createProduct(sellerId, categoryId, product));
+//	@PostMapping("/seller/add/{sellerId}/{categoryId}")
+//	public ResponseEntity<ProductDTO> addNewProduct(@PathVariable Long sellerId, @PathVariable Long categoryId,
+//			@RequestBody Product product) {
+//		return ResponseEntity.ok(productService.createProduct(sellerId, categoryId, product));
+//	}
+	@PostMapping("/seller/add")
+	public ResponseEntity<ProductDTO> addNewProduct(@RequestBody ProductRequest product) {
+		return ResponseEntity.ok(productService.createProduct(product));
 	}
 
 	@PostMapping("/admin/add-category")
-	public ResponseEntity<CategoryDTO> addNewCategory(@RequestBody Category category) {
+	public ResponseEntity<CategoryDTO> addNewCategory(@RequestBody CategoryRequest category) {
 		return ResponseEntity.ok(productService.createCategory(category));
 	}
 
@@ -65,7 +69,7 @@ public class ProductController {
 	}
 
 	@PutMapping("/seller/update/{id}")
-	public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+	public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductRequest product) {
 		return ResponseEntity.ok(productService.updateProduct(id, product));
 	}
 

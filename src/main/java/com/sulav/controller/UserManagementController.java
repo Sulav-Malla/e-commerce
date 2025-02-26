@@ -3,7 +3,6 @@ package com.sulav.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sulav.dto.UserDTO;
-import com.sulav.entity.UserProfile;
 import com.sulav.model.LoginRequest;
+import com.sulav.model.RegisterRequest;
 import com.sulav.service.UserManagementService;
 
 @RestController
@@ -33,7 +32,7 @@ public class UserManagementController {
 
 	// registration for new user
 	@PostMapping("/register")
-	public ResponseEntity<UserDTO> registerUser(@RequestBody UserProfile user) {
+	public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterRequest user) {
 
 		return ResponseEntity.ok(userService.createUser(user));
 	}
@@ -56,7 +55,7 @@ public class UserManagementController {
 	}
 
 	@PutMapping("/profile/update/{userId}")
-	public ResponseEntity<UserDTO> updateProfile(@PathVariable Long userId, @RequestBody UserProfile user) {
+	public ResponseEntity<UserDTO> updateProfile(@PathVariable Long userId, @RequestBody RegisterRequest user) {
 		return ResponseEntity.ok(userService.updateProfile(userId, user));
 	}
 }

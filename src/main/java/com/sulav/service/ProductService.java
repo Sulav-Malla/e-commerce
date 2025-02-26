@@ -17,6 +17,8 @@ import com.sulav.entity.Category;
 import com.sulav.entity.Product;
 import com.sulav.entity.Review;
 import com.sulav.entity.UserProfile;
+import com.sulav.model.CategoryRequest;
+import com.sulav.model.ProductRequest;
 import com.sulav.repository.CategoryRepo;
 import com.sulav.repository.ProductRepo;
 import com.sulav.repository.UserRepo;
@@ -89,22 +91,34 @@ public class ProductService {
 		return convertToCategoryDTO(category);
 	}
 
-	// create new product
-	public ProductDTO createProduct(Long sellerId, Long categoryId, Product product) {
-		UserProfile usr = userRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
-		Category category = categoryRepository.findById(categoryId)
-				.orElseThrow(() -> new RuntimeException("Category not found"));
-		product.setCategory(category);
-		product.setSeller(usr);
-		Product savedProduct = productRepository.save(product);
 
-		// Convert the saved product to DTO and return it
-		return convertToDTO(savedProduct);
+	// create product
+	public ProductDTO createProduct(ProductRequest productDto) {
+	    UserProfile seller = userRepository.findById(productDto.getSellerId())
+	            .orElseThrow(() -> new RuntimeException("Seller not found!"));
+	    
+	    Category category = categoryRepository.findById(productDto.getCategoryId())
+	            .orElseThrow(() -> new RuntimeException("Category not found!"));
+	    
+	    Product product = new Product();
+	    product.setProductName(productDto.getProductName());
+	    product.setDescription(productDto.getDescription());
+	    product.setPrice(productDto.getPrice());
+	    product.setQuantity(productDto.getQuantity());
+	    product.setCategory(category);
+	    product.setSeller(seller);
+	    product.setProductImgPath(productDto.getProductImgPath());
+
+	    return convertToDTO(productRepository.save(product));
 	}
+	
 
-	// create new category
-	public CategoryDTO createCategory(Category category) {
-		return convertToCategoryDTO(categoryRepository.save(category));
+	// create category (only admin)
+	public CategoryDTO createCategory(CategoryRequest categoryDto) {
+	    Category category = new Category();
+	    category.setCategoryName(categoryDto.getCategoryName());
+
+	    return convertToCategoryDTO(categoryRepository.save(category));
 	}
 
 	// upload product image
@@ -158,30 +172,30 @@ public class ProductService {
 	}
 
 	// updates product
-	public ProductDTO updateProduct(Long id, Product product) {
+	public ProductDTO updateProduct(Long id, ProductRequest productDto) {
 	    Product existingProduct = productRepository.findById(id)
 	            .orElseThrow(() -> new RuntimeException("Product not found!"));
 
-	    // making sure no empty stuff is copied
-	    if (product.getProductName() != null) {
-	        existingProduct.setProductName(product.getProductName());
+	    // Update fields only if they are provided in DTO
+	    if (productDto.getProductName() != null) {
+	        existingProduct.setProductName(productDto.getProductName());
 	    }
-	    if (product.getPrice() != null) {
-	        existingProduct.setPrice(product.getPrice());
+	    if (productDto.getPrice() != null) {
+	        existingProduct.setPrice(productDto.getPrice());
 	    }
-	    if (product.getCategory() != null) {
-	        Category category = categoryRepository.findById(product.getCategory().getCategoryId())
+	    if (productDto.getCategoryId() != null) {
+	        Category category = categoryRepository.findById(productDto.getCategoryId())
 	                .orElseThrow(() -> new RuntimeException("Category not found!"));
 	        existingProduct.setCategory(category);
 	    }
-	    if (product.getDescription() != null) {  
-	        existingProduct.setDescription(product.getDescription());
+	    if (productDto.getDescription() != null) {
+	        existingProduct.setDescription(productDto.getDescription());
 	    }
-	    if (product.getQuantity() > 0) { 
-	        existingProduct.setQuantity(product.getQuantity());
+	    if (productDto.getQuantity() != null && productDto.getQuantity() > 0) {
+	        existingProduct.setQuantity(productDto.getQuantity());
 	    }
-	    if (product.getProductImgPath() != null) {
-	        existingProduct.setProductImgPath(product.getProductImgPath());
+	    if (productDto.getProductImgPath() != null) {
+	        existingProduct.setProductImgPath(productDto.getProductImgPath());
 	    }
 
 	    // Save updated product
