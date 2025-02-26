@@ -1,5 +1,6 @@
 package com.sulav.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -25,12 +26,12 @@ public class Review {
 	private int rating; // out of 5
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", nullable = true)
-    @JsonIgnore
-	private User user;
+	@JoinColumn(name = "user_id")
+	@JsonIgnore
+	private UserProfile user;
 
 	@ManyToOne
-	@JoinColumn(name = "product_id", nullable = true)
+	@JoinColumn(name = "product_id")
 	@JsonIgnore
 	private Product product;
 }

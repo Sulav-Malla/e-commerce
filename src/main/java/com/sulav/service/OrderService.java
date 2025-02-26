@@ -20,53 +20,55 @@ public class OrderService {
 	private OrderRepo orderRepository;
 
 	private OrderDTO convertToOrderDTO(Order order) {
-		List<OrderItemDTO> orderItems = order.getOrderItems().stream().map(this::convertToOrderItemDTO).collect(Collectors.toList());
-		return new OrderDTO(
-				order.getOrderId(),
-				order.getTotalAmount(),
-				order.getPayment().getPaymentMethod(),
-				orderItems,
-				order.getStatus()
-				);
-		
+		List<OrderItemDTO> orderItems = order.getOrderItems().stream().map(this::convertToOrderItemDTO)
+				.collect(Collectors.toList());
+		String paymentMethod = (order.getPayment() != null) ? order.getPayment().getPaymentMethod() : "Not Paid";
+		return new OrderDTO(order.getOrderId(), order.getTotalAmount(), paymentMethod, orderItems, order.getStatus());
+
 	}
-	
+
 	private OrderItemDTO convertToOrderItemDTO(OrderItem item) {
-		return new OrderItemDTO(
-				item.getOrderItemId(),
-				item.getProduct().getProductName(),
-				item.getQuantity(),
-				item.getPrice()
-				);
-				
+		return new OrderItemDTO(item.getOrderItemId(), item.getProduct().getProductName(), item.getQuantity(),
+				item.getPrice());
+
 	}
-	
-	
 
 	// get all orders for a user
 	public List<OrderDTO> getOrderHistory(Long userId) {
-		List<Order> orders = orderRepository.findByUser_uID(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-		List<OrderDTO> orderHistory = orders.stream().filter(order -> order.getStatus().equals("Finished")).map(this::convertToOrderDTO).collect(Collectors.toList());
+		List<Order> orders = orderRepository.findByUser_uID(userId)
+				.orElseThrow(() -> new RuntimeException("User not found!"));
+		List<OrderDTO> orderHistory = orders.stream().filter(order -> order.getStatus().equals("Finished"))
+				.map(this::convertToOrderDTO).collect(Collectors.toList());
 		return orderHistory;
 	}
 
 	// track open orders
-	public List<OrderDTO> getOpenOrders(Long userId){
-		List<Order> orders = orderRepository.findByUser_uID(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-		List<OrderDTO> orderHistory = orders.stream().filter(order -> order.getStatus().equals("Open")).map(this::convertToOrderDTO).collect(Collectors.toList());
+	public List<OrderDTO> getOpenOrders(Long userId) {
+		List<Order> orders = orderRepository.findByUser_uID(userId)
+				.orElseThrow(() -> new RuntimeException("User not found!"));
+		List<OrderDTO> orderHistory = orders.stream().filter(order -> order.getStatus().equals("Open"))
+				.map(this::convertToOrderDTO).collect(Collectors.toList());
 		return orderHistory;
 	}
-	
+
 	// order confirmation
-	public OrderDTO getConfirmation(Long orderId) {
+	public OrderDTO getConfirmation(Long userId, Long orderId) {
 		Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found!"));
+		
+		if (!order.getUser().getUID().equals(userId)) {
+	        throw new RuntimeException("Unauthorized access! This order does not belong to the user.");
+	    }
 		Payment payment = order.getPayment();
-		if (payment != null) {
-			if (payment.getPaymentStatus().equals("Completed")) {
-				order.setStatus("Finished");
-				return convertToOrderDTO(order);
-			}
+		if (payment == null) {
+			throw new RuntimeException("Payment not found for this order! Please complete the payment.");
 		}
-		return null;
+
+		if (payment.getPaymentStatus().equals("Completed")) {
+			order.setStatus("Finished");
+			orderRepository.save(order);
+			return convertToOrderDTO(order);
+		}
+
+		throw new RuntimeException("Payment is still pending!");
 	}
 }

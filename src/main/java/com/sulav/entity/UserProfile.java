@@ -1,9 +1,8 @@
 package com.sulav.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,7 +20,7 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name="users")
-public class User {
+public class UserProfile {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,21 +41,16 @@ public class User {
     private RoleName role;
 	
 	@OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
-	@JsonIgnore
-	private List<Product> products;
+	private List<Product> products = new ArrayList<>();;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	@JsonIgnore
-	@JsonManagedReference
-	private List<Order> orders;
+	private List<Order> orders = new ArrayList<>();;
 	
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-	@JsonIgnore
 	private Cart cart;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	@JsonIgnore
-	private List<Review> reviews;
+	private List<Review> reviews = new ArrayList<>();;
 	
 	public enum RoleName {
         ADMIN, SELLER, CUSTOMER

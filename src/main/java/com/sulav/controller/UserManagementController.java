@@ -3,6 +3,7 @@ package com.sulav.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sulav.dto.UserDTO;
-import com.sulav.entity.User;
+import com.sulav.entity.UserProfile;
+import com.sulav.model.LoginRequest;
 import com.sulav.service.UserManagementService;
 
 @RestController
@@ -24,35 +26,37 @@ public class UserManagementController {
 	@Autowired
 	private UserManagementService userService;
 	
-	@GetMapping("/view")
-	public ResponseEntity<List<UserDTO>> viewAllUsers(){
+	@GetMapping("/admin/view")
+	public ResponseEntity<List<UserDTO>> viewAllUsers() {
 		return ResponseEntity.ok(userService.viewAllUsers());
 	}
+
 	// registration for new user
 	@PostMapping("/register")
-	public ResponseEntity<UserDTO> registerUser(@RequestBody User user){
+	public ResponseEntity<UserDTO> registerUser(@RequestBody UserProfile user) {
+
 		return ResponseEntity.ok(userService.createUser(user));
 	}
-	
+
 	// login existing user
-	@GetMapping("/login")
-	public ResponseEntity<UserDTO> loginUser(@RequestParam String username, @RequestParam String password){
-		return ResponseEntity.ok(userService.findUser(username, password));
+	@PostMapping("/login")
+	public ResponseEntity<UserDTO> loginUser(@RequestBody LoginRequest loginRequest) {
+		return ResponseEntity.ok(userService.findUser(loginRequest.getEmail(), loginRequest.getPassword()));
 	}
-	
+
 	// help user get back password
-	@GetMapping("/forgot-pass")
-	public ResponseEntity<String> forgotPassword(@RequestParam String email){
+	@GetMapping("/profile/forgot-pass")
+	public ResponseEntity<String> forgotPassword(@RequestParam String email) {
 		return ResponseEntity.ok(userService.findPassword(email));
 	}
-	
-	@PutMapping("/reset-pass/{email}")
-	public ResponseEntity<String> resetPassword(@PathVariable String email, @RequestParam String newpass){
-		return ResponseEntity.ok(userService.resetPassword(email, newpass));
+
+	@PutMapping("/profile/reset-pass")
+	public ResponseEntity<String> resetPassword(@RequestBody LoginRequest loginRequest) {
+		return ResponseEntity.ok(userService.resetPassword(loginRequest.getEmail(), loginRequest.getPassword()));
 	}
-	
-	@PutMapping("/update/{userId}")
-	public ResponseEntity<UserDTO> updateProfile(@PathVariable Long userId, @RequestBody User user){
+
+	@PutMapping("/profile/update/{userId}")
+	public ResponseEntity<UserDTO> updateProfile(@PathVariable Long userId, @RequestBody UserProfile user) {
 		return ResponseEntity.ok(userService.updateProfile(userId, user));
 	}
 }

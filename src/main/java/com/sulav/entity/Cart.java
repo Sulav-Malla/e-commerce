@@ -2,8 +2,6 @@ package com.sulav.entity;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -27,11 +25,9 @@ public class Cart {
 	
 	@OneToOne
 	@JoinColumn(name="user_id", nullable = false)
-	@JsonBackReference
-	private User user;
+	private UserProfile user;
 	
 	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-	@JsonManagedReference
 	List<CartItem> cartItems;
 	
 	private Double totalPrice = 0.0;

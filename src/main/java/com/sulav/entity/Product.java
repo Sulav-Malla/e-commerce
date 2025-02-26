@@ -28,7 +28,7 @@ public class Product {
 	
 	private String productName;
 	
-	private String pDescription;
+	private String description;
 	
 	private Double price;
 	
@@ -41,7 +41,7 @@ public class Product {
 	@ManyToOne
     @JoinColumn(name = "seller_id")
 	@JsonIgnore
-    private User seller;  
+    private UserProfile seller;  
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore

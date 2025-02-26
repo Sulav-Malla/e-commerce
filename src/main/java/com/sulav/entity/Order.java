@@ -33,7 +33,7 @@ public class Order {
 	@ManyToOne
 	@JoinColumn(name = "user_id")
     @JsonBackReference
-	private User user;
+	private UserProfile user;
 	
 	@OneToMany(mappedBy = "order", cascade= CascadeType.ALL)
 	@JsonManagedReference

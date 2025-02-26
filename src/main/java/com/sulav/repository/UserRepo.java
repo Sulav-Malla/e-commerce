@@ -3,12 +3,14 @@ package com.sulav.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import com.sulav.entity.User;
+import com.sulav.entity.UserProfile;
 
-public interface UserRepo extends JpaRepository<User, Long> {
+@Repository
+public interface UserRepo extends JpaRepository<UserProfile, Long> {
 
-	Optional<User> findByUsername(String userName);
-	Optional<User> findByEmail(String email);
+	Optional<UserProfile> findByUsername(String userName);
+	Optional<UserProfile> findByEmail(String email);
 	boolean existsByEmail(String email);
 }

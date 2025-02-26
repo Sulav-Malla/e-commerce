@@ -16,7 +16,7 @@ import com.sulav.dto.ReviewDTO;
 import com.sulav.entity.Category;
 import com.sulav.entity.Product;
 import com.sulav.entity.Review;
-import com.sulav.entity.User;
+import com.sulav.entity.UserProfile;
 import com.sulav.repository.CategoryRepo;
 import com.sulav.repository.ProductRepo;
 import com.sulav.repository.UserRepo;
@@ -39,7 +39,7 @@ public class ProductService {
 
 	// converts product to dto
 	private ProductDTO convertToDTO(Product product) {
-		return new ProductDTO(product.getProductId(), product.getProductName(), product.getPDescription(),
+		return new ProductDTO(product.getProductId(), product.getProductName(), product.getDescription(),
 				product.getPrice(),
 				product.getReviews().stream().map(this::convertToReviewDTO).collect(Collectors.toList()),
 				product.getProductImgPath(), product.getQuantity(), product.getSeller().getUsername(),
@@ -91,7 +91,7 @@ public class ProductService {
 
 	// create new product
 	public ProductDTO createProduct(Long sellerId, Long categoryId, Product product) {
-		User usr = userRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
+		UserProfile usr = userRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
 		Category category = categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new RuntimeException("Category not found"));
 		product.setCategory(category);
@@ -157,22 +157,37 @@ public class ProductService {
 		}
 	}
 
-	// update product
+	// updates product
 	public ProductDTO updateProduct(Long id, Product product) {
-		Product existingProduct = productRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Product not found!"));
-		existingProduct.setProductName(product.getProductName());
-		existingProduct.setPrice(product.getPrice());
-		existingProduct.setCategory(product.getCategory());
-		existingProduct.setPDescription(product.getPDescription());
-		existingProduct.setQuantity(product.getQuantity());
-		existingProduct.setReviews(product.getReviews());
-		existingProduct.setSeller(product.getSeller());
-		existingProduct.setProductImgPath(product.getProductImgPath());
-		existingProduct.setCarts(product.getCarts());
-		existingProduct.setOrders(product.getOrders());
-		return convertToDTO(productRepository.save(existingProduct));
+	    Product existingProduct = productRepository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Product not found!"));
+
+	    // making sure no empty stuff is copied
+	    if (product.getProductName() != null) {
+	        existingProduct.setProductName(product.getProductName());
+	    }
+	    if (product.getPrice() != null) {
+	        existingProduct.setPrice(product.getPrice());
+	    }
+	    if (product.getCategory() != null) {
+	        Category category = categoryRepository.findById(product.getCategory().getCategoryId())
+	                .orElseThrow(() -> new RuntimeException("Category not found!"));
+	        existingProduct.setCategory(category);
+	    }
+	    if (product.getDescription() != null) {  
+	        existingProduct.setDescription(product.getDescription());
+	    }
+	    if (product.getQuantity() > 0) { 
+	        existingProduct.setQuantity(product.getQuantity());
+	    }
+	    if (product.getProductImgPath() != null) {
+	        existingProduct.setProductImgPath(product.getProductImgPath());
+	    }
+
+	    // Save updated product
+	    return convertToDTO(productRepository.save(existingProduct));
 	}
+
 
 	// delete product
 	public String deleteProduct(Long id) {

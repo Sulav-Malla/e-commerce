@@ -26,33 +26,33 @@ public class CartController {
 	@Autowired
 	private CartService cartService;
 	
-	@GetMapping("/view/all")
+	@GetMapping("/admin/view/all")
 	public ResponseEntity<List<CartDTO>> viewAllCarts(){
 		return ResponseEntity.ok(cartService.getAllCarts());
 	}
 	
-	@GetMapping("/view/{id}")
+	@GetMapping("/user/view/{id}")
 	public ResponseEntity<CartDTO> viewUserCart(@PathVariable Long id){
 		return ResponseEntity.ok(cartService.getCartByUserId(id));
 	}
 	
 	
-	@PutMapping("/add/{userId}/{productId}")
+	@PutMapping("/user/add/{userId}/{productId}")
 	public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long userId, @PathVariable Long productId, @RequestParam int quantity){
 		return ResponseEntity.ok(cartService.addProductsToCart(userId, productId, quantity));
 	}
 	
-	@DeleteMapping("/delete/{cartId}/{itemId}")
+	@DeleteMapping("/user/delete/{cartId}/{itemId}")
 	public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long itemId, @RequestParam int quantity){
 		return ResponseEntity.ok(cartService.deleteProductFromCart(cartId, itemId, quantity));
 	}
 	
-	@PostMapping("/review/{userId}/{productId}")
+	@PostMapping("/user/review/{userId}/{productId}")
 	public ResponseEntity<ReviewDTO> reviewProduct(@PathVariable Long userId, @PathVariable Long productId, @RequestBody Review review){
 		return ResponseEntity.ok(cartService.writeReviewForProduct(userId, productId, review));
 	}
 	
-	@PostMapping("/checkout/{userId}/{cartId}")
+	@PostMapping("/user/checkout/{userId}/{cartId}")
 	public ResponseEntity<String> cartCheckout(@PathVariable Long userId, @PathVariable Long cartId){
 		return ResponseEntity.ok(cartService.checkoutProcess(userId, cartId));
 	}

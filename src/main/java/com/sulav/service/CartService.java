@@ -15,12 +15,11 @@ import com.sulav.entity.Order;
 import com.sulav.entity.OrderItem;
 import com.sulav.entity.Product;
 import com.sulav.entity.Review;
-import com.sulav.entity.User;
+import com.sulav.entity.UserProfile;
 import com.sulav.repository.CartItemRepo;
 import com.sulav.repository.CartRepo;
 import com.sulav.repository.OrderRepo;
 import com.sulav.repository.ProductRepo;
-import com.sulav.repository.ReviewRepo;
 import com.sulav.repository.UserRepo;
 
 @Service
@@ -30,16 +29,14 @@ public class CartService {
 	private final CartItemRepo cartItemRepository;
 	private final UserRepo userRepository;
 	private final ProductRepo productRepository;
-	private final ReviewRepo reviewRepository;
 	private final OrderRepo orderRepository;
 
 	public CartService(CartRepo cartRepository, CartItemRepo cartItemRepository, UserRepo userRepository,
-			ProductRepo productRepository, ReviewRepo reviewRepository, OrderRepo orderRepository) {
+			ProductRepo productRepository, OrderRepo orderRepository) {
 		this.cartRepository = cartRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.userRepository = userRepository;
 		this.productRepository = productRepository;
-		this.reviewRepository = reviewRepository;
 		this.orderRepository = orderRepository;
 	}
 
@@ -72,14 +69,14 @@ public class CartService {
 
 	// get the cart for specific user
 	public CartDTO getCartByUserId(Long id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+		UserProfile user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
 		Cart cart = cartRepository.findByUser(user).orElseThrow(() -> new RuntimeException("Cart not found!"));
 		return convertToCartDTO(cart);
 	}
 
 	// open new cart
 	public Cart createCartForUser(Long userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 
 		Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
 			Cart newCart = new Cart();
@@ -101,6 +98,8 @@ public class CartService {
 		if (product.getQuantity() < quantity) {
 			throw new RuntimeException("Quantity more than what's available!");
 		}
+		product.setQuantity(product.getQuantity() - quantity);
+	    productRepository.save(product);
 		CartItem existingItem = cart.getCartItems().stream()
 				.filter(item -> item.getProduct().getProductId().equals(productId)).findFirst().orElse(null);
 		if (existingItem != null) {
@@ -126,7 +125,7 @@ public class CartService {
 		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found!"));
 		CartItem item = cartItemRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Item not found!"));
 		int currentQuantity = item.getQuantity();
-
+		Product product = item.getProduct();
 		if (quantity > currentQuantity) {
 			return "Cannot delete more than what's available";
 		} else if (quantity == currentQuantity) {
@@ -138,6 +137,8 @@ public class CartService {
 			cartItemRepository.save(item);
 
 		}
+		product.setQuantity(product.getQuantity() + quantity);
+	    productRepository.save(product);
 		Double newTotal = cart.getCartItems().stream()
 				.mapToDouble(currentItem -> currentItem.getPrice() * currentItem.getQuantity()).sum();
 
@@ -154,7 +155,7 @@ public class CartService {
 
 	// lets user write review for a product
 	public ReviewDTO writeReviewForProduct(Long userId, Long productId, Review review) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new RuntimeException("Product not found!"));
 		review.setUser(user);
@@ -170,7 +171,7 @@ public class CartService {
 
 	public String checkoutProcess(Long userId, Long cartId) {
 		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found!"));
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		UserProfile user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 
 		Order order = new Order();
 		order.setUser(user);
@@ -182,6 +183,12 @@ public class CartService {
 		order.setOrderItems(orderItems);
 		orderRepository.save(order);
 
+	
+	    user.getOrders().add(order);
+
+	    
+	    userRepository.save(user);
+	    
 		return "Order created with id: " + order.getOrderId();
 	}
 

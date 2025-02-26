@@ -30,9 +30,9 @@ public class OrderController {
 		return ResponseEntity.ok(orderService.getOpenOrders(userId));
 	}
 	
-	@GetMapping("/confirmation/{orderId}")
-	public ResponseEntity<?> getOrderConfirmation(@PathVariable Long orderId){
-		OrderDTO orderDTO = orderService.getConfirmation(orderId);
+	@GetMapping("/confirmation/{userId}/{orderId}")
+	public ResponseEntity<?> getOrderConfirmation(@PathVariable Long userId, @PathVariable Long orderId){
+		OrderDTO orderDTO = orderService.getConfirmation(userId, orderId);
 	    if (orderDTO == null) {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 	                .body("Payment not completed. Order is not confirmed.");
